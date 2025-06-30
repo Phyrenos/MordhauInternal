@@ -1,5 +1,4 @@
 #include <Windows.h>
-#include "CumHook/CumHook.h"
 #include "./CppSDK/SDK/Mordhau_classes.hpp"
 using namespace SDK;
 
@@ -43,7 +42,7 @@ DWORD WINAPI CreateConsole(LPVOID lpParameter)
 void (*PostRender)(UGameViewportClient* _this, UCanvas* Canvas) = decltype(PostRender)((uintptr_t)GetModuleHandleW(0) + 0x30e5530);
 void PostRenderHook(UGameViewportClient* _this, UCanvas* Canvas)
 {
-    
+    // UD
     DrawTransition(Canvas);
     
     return PostRender(_this,Canvas);
@@ -74,13 +73,14 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 }
 
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    if (ul_reason_for_call != DLL_PROCESS_ATTACH) return true;
-    DisableThreadLibraryCalls(hModule);
-    CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MainThread, 0, 0, 0);
-    CreateThread(0, 0, (LPTHREAD_START_ROUTINE)CreateConsole, 0, 0, 0);
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+    switch (ul_reason_for_call) {
+        case DLL_PROCESS_ATTACH: {
+            DisableThreadLibraryCalls(hModule);
+            CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MainThread, 0, 0, 0);
+            CreateThread(0, 0, (LPTHREAD_START_ROUTINE)CreateConsole, 0, 0, 0);
+            break;
+        }
+    }
+    return TRUE;
 }
